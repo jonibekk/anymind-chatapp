@@ -100,9 +100,7 @@ const MessageBody = () => {
     }
 
     const scrollToBottom = () => {
-        if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
-        }
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
 
     const onSubmit = async (): Promise<void> => {
@@ -138,8 +136,8 @@ const MessageBody = () => {
             setMessages(FetchObject.data.fetchLatestMessages);
             setFetchMoreActive(FetchObject.data.fetchLatestMessages.length >= 10);
             setEditorText(getAsyncStorage(`channel${state.currentChannel}/${state.currentUser}`) || '');
+            scrollToBottom();
         }
-        scrollToBottom();
     }, [state, FetchObject, errorMessages]);
 
     return (
