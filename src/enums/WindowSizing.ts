@@ -1,0 +1,1 @@
+export const MIN_TABLET_SIZE: number = 834;
