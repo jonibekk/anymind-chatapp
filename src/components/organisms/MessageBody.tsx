@@ -26,7 +26,18 @@ const MessageLoadOldMessagesStyle = {
     backgroundColor: 'white',
     boxShadow: '1px 2px 4px #d3d3d3'
 }
-
+const RealoadWrapperStyle = {
+    display: 'flex',
+    columnGap: '10px',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    boxShadow: '1px 2px 4px #d3d3d3',
+    padding: '5px',
+    borderRadius: '99px',
+    ZIndex: '10',
+    left: '20px',
+    bottom: '170px'
+}
 
 const sortDesc = (a: Message, b: Message) => {
     const time1 = (new Date(a.datetime).getTime());
@@ -54,7 +65,7 @@ const MessageBody = () => {
     const messagesEndRef = useRef<null | HTMLDivElement>(null);
     const textRef = useRef<null | HTMLTextAreaElement>(null);
 
-    const [sendMessage] = useMutation(MutationPostMessages(), { errorPolicy: 'all' });
+    const [sendMessage, MutateObject] = useMutation(MutationPostMessages(), { errorPolicy: 'all' });
     const FetchObject = useQuery(QueryFetchLatestMessages(), { variables: { channelId: state.currentChannel }, errorPolicy: 'all' });
     const [loadOldMessages, FetchPrevObject] = useLazyQuery(QueryFetchMoreMessages(), { errorPolicy: 'all' });
 
@@ -81,6 +92,10 @@ const MessageBody = () => {
             }
             setMessages([...messages, ...tmpMessages]);
         }
+    }
+
+    const onReloadMessages = async (): Promise<void> => {
+        await FetchObject.refetch({ channelId: state.currentChannel });
     }
 
     const getAllMessageItems = (messages: Message[]) => {
@@ -158,12 +173,6 @@ const MessageBody = () => {
                     }} onclick={onLoadOldMessages} title='Load previous messages' />
                 }
                 {
-                    FetchObject.loading && // Show "Loading..." if loading is true
-                    <span style={{ fontSize: '2em', fontWeight: 'bold', color: 'green' }}>
-                        Loading...
-                    </span>
-                }
-                {
                     FetchObject.error && // Show error message if there is an error
                     <span style={{ fontSize: '2em', fontWeight: 'bold', color: 'red' }}>
                         Error Occured. Please try again
@@ -173,6 +182,17 @@ const MessageBody = () => {
                     messages.length > 0 && // Show Messages if thare are any.
                     getAllMessageItems(messages)
                 }
+                <div style={{ position: 'absolute', ...RealoadWrapperStyle }}>
+                    <span onClick={onReloadMessages}><i className="fas fa-redo-alt"></i></span>
+                    {
+                        FetchObject.loading &&
+                        <span>Loading...</span>
+                    }
+                    {
+                        (FetchObject.error || MutateObject.error) &&
+                        <span>Error, try again.</span>
+                    }
+                </div>
                 <div ref={messagesEndRef} />
             </section>
 
